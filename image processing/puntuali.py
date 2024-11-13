@@ -6,11 +6,13 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt # usata per mostrare grafici ed immagini
 
+
 # Carica l'immagine (convertita in scala di grigi)
     # Lenna.png -> percorso dell'immagine
         # cv2.IMREAD_COLOR -> immagine a colori
         # cv2.IMREAD_GRAYSCALE -> immagine in scala di grigi
-image = cv2.imread("Lenna.png", cv2.IMREAD_GRAYSCALE)
+def read_grayscale(name):
+    return cv2.imread(name, cv2.IMREAD_GRAYSCALE)
 
 # Funzione per mostrare le immagini in bianco e nero
 def show_image(title, img):
@@ -19,6 +21,39 @@ def show_image(title, img):
     plt.title(title)
     plt.axis("off")
     plt.show()
+
+
+
+def show_images(titles, images, cols=2):
+    """
+    Mostra più immagini in una griglia.
+    
+    - param titles: Lista dei titoli delle immagini.
+    - param images: Lista delle immagini da mostrare.
+    - param cols: Numero di colonne nella griglia.
+    """
+    assert len(titles) == len(images), "Il numero di titoli deve corrispondere al numero di immagini."
+    
+    n_images = len(images)
+    rows = (n_images + cols - 1) // cols  # Calcola il numero di righe necessario
+    
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 5))  # Dimensione personalizzabile
+    axes = axes.ravel()  # Appiattisce gli assi per iterare facilmente
+    
+    for i in range(len(images)):
+        axes[i].imshow(images[i], cmap="gray")
+        axes[i].set_title(titles[i])
+        axes[i].axis("off")
+    
+    # Nascondi eventuali assi extra
+    for i in range(len(images), len(axes)):
+        axes[i].axis("off")
+    
+    plt.tight_layout()
+    plt.show()
+
+
+
 
 # 1. Saturated Arithmetic
 def saturated_arithmetic(img, c):
