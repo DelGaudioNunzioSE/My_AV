@@ -12,16 +12,23 @@ def average_filter(image, ksize=3):
     return cv2.blur(image, (ksize, ksize))
 
 
+
+
 # trova valore mediano ed imposta quello al centro della matrice
 def median_filter(image, ksize=3):
     if ksize % 2 == 0:
         raise ValueError("ksize deve essere un numero dispari.")
     return cv2.medianBlur(image, ksize)
 
+
+
 # Filto gaussiano
     # ksize -> dim matrice
     # st_dev -> deviazione standard
 def gaussian_filter(image, ksize=3, st_dev=0):
+    """
+    Applica il filtro Prewitt per rilevare i bordi.
+    """
     if ksize % 2 == 0:
         raise ValueError("ksize deve essere un numero dispari.")
     return cv2.GaussianBlur(image, (ksize, ksize), st_dev)
@@ -74,9 +81,6 @@ def discrete_gradient(image, ksize=3):
 def laplacian_filter(image, ksize=3):
     """
     Applica il filtro Laplaciano per rilevare i bordi.
-    :param image: Immagine di input (RGB o Grayscale).
-    :param ksize: Dimensione del kernel (deve essere dispari).
-    :return: Immagine filtrata con il filtro Laplaciano.
     """
     if ksize % 2 == 0:
         raise ValueError("ksize deve essere un numero dispari.")
