@@ -25,58 +25,66 @@ def histo(image, title = 'histogram'):
     plt.show()
 
 
-# CANNY
+# 
 # fa erosione e dilatazione per migliorare l'immagine
 # poi trova i contorni del immagine
-def canny(open_image, image):
+## open_image -> immagine biancha e nera
+## image -> immagine originale
+def find_edges(open_image, image):
+    # inversione immgaine
     open_image = 255-open_image
-    kernel = np.ones((14,14), np.uint8)
-    #open_image = cv2.morphologyEx(open_image, cv2.MORPH_OPEN, kernel)
-    open_image = cv2.erode(open_image, kernel, iterations=1)
-    open_image = cv2.dilate(open_image, kernel, iterations=1) #rimuovere i collegamenti tra i pannelli
-    
+    # OPENING
+    # forma della struttura morfologica 
+    morf_struc = np.ones((14,14), np.uint8)
+    open_image = cv2.erode(open_image, morf_struc, iterations=1)
+    open_image = cv2.dilate(open_image, morf_struc, iterations=1)
+    # cv2.RETR_EXTERNAL -> contorni esterni
     contours, _ = cv2.findContours(open_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     output_image = connComps(open_image, image)
     cv2.imshow("Open", open_image)
-    # output_image = image.copy()
-    # for contour in contours:
-    #     x, y, w, h = cv2.boundingRect(contour)
-    #     cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 255, 0), 2) 
     return output_image
 
+
+# Trova componenti connesse e fa i rettangoli
 def connComps(open_image, image):
+    ## num_labels -> numero totale di componenti connesse
+    ## labels -> array che indica la lable di ogni pixel
     num_labels, labels = cv2.connectedComponents(open_image)
+    # La rende colorata per fare i rettangoli colorati
     output_image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    # per ogni componente connessa
     for label in range(1, num_labels):  
+        ## labels == label -> mette a true i valori del array che fanno parte di questa label 
+        ## 255 -> quelle che fanno parte di questa label vengono messe bianche
         component_mask = (labels == label).astype(np.uint8) * 255
+        # Trova i contorni all'interno della maschera componente connessa
+        ## cv2.RETR_EXTERNAL -> trova solo i contorni esterni
         contours, _ = cv2.findContours(component_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # disegna i rettangoli attorno i contorni 
         for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
             if w > 20:
                 cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
     return output_image
 
+
+
 for image in os.listdir('./Img/Panels/'):
     image = "./Img/Panels/" + image
+    # trasformo in bianco e nero
     image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
-    #histo(image)
-
-    #clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(20,20)) #clipLimit è quanto voglio aumentare il contrasto, tile devo metterlo grande se ho tante aree uniformi
-    #foto 2 o 3 e 4
-
-    #clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(5,5))
-
-    #clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(7,7))
     clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(10,10))
 
     clahe_image = clahe.apply(image)
     clahe_image = cv2.medianBlur(clahe_image, 3) #rumore per rimuovere quello creato da CLAHE
-    #clahe_image = cv2.blur(clahe_image, (5, 5))
-    #clahe_image = image
-    #clahe_image = cv2.GaussianBlur(clahe_image, (9, 9), 0)
+
+    # fa treshould
     threshold, binary_image = cv2.threshold(clahe_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     print(threshold)
+
+    #rileva i bordi con canny
     edges = cv2.Canny(clahe_image, threshold/2, threshold, apertureSize=3, L2gradient = True) #canny algorithm per i bordi, lw threshold + up threshold
+    # operazioni morfologiche apertura
     kernel = np.ones((14, 14), np.uint8)
     open_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel) #rimuovere i collegamenti tra i pannelli
     cv2.imshow("OpenImage", open_image)
@@ -84,7 +92,7 @@ for image in os.listdir('./Img/Panels/'):
 
 
     output_comps=connComps(open_image, image)
-    output_canny = canny(edges, image)
+    output_canny = find_edges(edges, image)
 
 
     images = [binary_image, image, edges, open_image, clahe_image, output_comps, output_canny]
