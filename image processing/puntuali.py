@@ -92,6 +92,37 @@ def gray_level_inversion(img):
 
 #UTILIZZO DEL ISTOGRAMMA (sono sempre puntuali)
 
+
+# calcola e mostra l'istogramma del immagine 
+def histo(image, title = 'histogram'):
+    # calcola istogramma di un immagine
+        # image -> immagine da considerare
+        # 0 -> canale colori (in questo caso bianco e nero)
+        # None -> assenza di una maschera che nasconde parte di un immagine
+        # 256 -> numero di gruppi (bins) per l'istogramma (in questo caso ogni valore possibile è un gruppo diverso)
+        # [0,256] -> range di valori possibili dei pixel 
+    histogram = cv2.calcHist([image], [0], None, [256], [0, 256])
+
+    # Mostra l'istogramma
+    fig=plt.figure(figsize=(10, 5))
+    plt.title(title)
+    plt.xlabel('Pixel values')
+    plt.ylabel('Number of pixel')
+    plt.plot(histogram)
+    # Limita l'asse X a 256 per visualizzare tutte le intensità
+    plt.xlim([0, 256])  
+    plt.grid(False)
+    plt.tight_layout()
+
+    # Converte la figura in immagine OpenCV
+    fig.canvas.draw()
+    histogram_img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    histogram_img = histogram_img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    plt.close(fig)  # Chiude la figura per liberare memoria
+
+    return histogram_img
+
+
 # 7. Equalizzazione dell'Istogramma
 def histogram_equalization(img):
     # appiattisce l'istogramma per immagini bianco e nero

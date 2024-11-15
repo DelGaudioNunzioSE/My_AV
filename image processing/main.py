@@ -3,6 +3,8 @@ from puntuali import *
 if __name__ == "__main__":
     name= "img/Lenna.png"
     img= read_grayscale(name)
+    # histo
+    img1=histo(img)
     # puntual
     img2=saturated_arithmetic(img, 50)
     img3= multiply_brightness(img, 1.5)
@@ -11,15 +13,15 @@ if __name__ == "__main__":
     img6=gray_level_inversion(img)
     img7=histogram_equalization(img)
     img8=clahe(img)
-    img9=thresholding(img, t=127)
+    img9=thresholding(img, thresh_value=127)
     img10=otsu_binarization(img)
     img11=adaptive_thresholding(img)
     # output
     n_collum=4
-    show_images(["Original", "Saturated", "Multiply Brightness",\
+    show_images(["Original", "Histo", "Saturated", "Multiply Brightness",\
                  "Linear Operator", "Clamping", "Gray Level Inversion",\
                     "Histogram Equalization", "CLAHE", "Thresholding",\
                         "Otsu's Binarization", "Adaptive Thresholding"],\
-                            [img, img2, img3, img4, img5, img6, img7,\
+                            [img, img1, img2, img3, img4, img5, img6, img7,\
                              img8, img9, img10, img11],\
                                 n_collum)
