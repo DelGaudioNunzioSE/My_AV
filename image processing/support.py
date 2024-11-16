@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt # usata per mostrare grafici ed immagini
+import math
 
 
 
@@ -64,13 +65,11 @@ def show_images(titles, images, cols=2):
 
 
 
-def show(titles,imgs):
+def show_with_histo(titles,imgs):
     # calcolo numero di colonne
-    n_coll=len(imgs)//2
-    if n_coll == 0:
-        n_coll = 1
-    if len(imgs)%2 != 0:
-        n_coll +=1
+    n_coll=len(imgs)
+    if n_coll % 2 != 0:
+        n_coll = n_coll + (2-n_coll %2)
 
     # aggiunta istogrammi
     img_list = []

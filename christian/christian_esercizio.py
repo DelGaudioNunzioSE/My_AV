@@ -69,8 +69,8 @@ def connComps(open_image, image):
 
 
 
-for image in os.listdir('./Img/Panels/'):
-    image = "./Img/Panels/" + image
+for image in os.listdir('./Img/'):
+    image = "./Img/" + image
     # trasformo in bianco e nero
     image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
     clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(10,10))
