@@ -7,6 +7,7 @@ MODE=2
 IMG_NAME= "img//pannels/pv01.png"
 
 
+
 # BORDI
 def canny_homemade(img, smoothing_type=None, kernel=3, sigma=1.4, \
                    maxima_dif=0, low_threshold_ratio=0.5, high_threshold=None):
@@ -81,7 +82,7 @@ if __name__ == "__main__":
         img10=otsu_binarization(img)
         img11=adaptive_thresholding(img)
         show_with_histo(['Origianl','Thresholding','Otsu','Adaptive'],[img,img9,img10,img11])
-        
+
     # Canny
     elif(MODE==2):
         
