@@ -18,24 +18,14 @@ def pre_process(img):
     return img
 
 
-def canny_homemade(img, smoothing_type=None, kernel=3, sigma=1.4, \
-                   do_maxima=True, closing= None, low_threshold_ratio=0.5, high_threshold=None):
-    """
-    Canny Homemade.
-    
-    Args:
-        img: Immagine bianco e nero.
-        kernel = forma kernel
-        s = deviazione standard gaussiano
-        low_threshold_ratio (float): Rapporto tra soglia bassa e soglia alta (default: 0.5).
-        high_threshold (int): Soglia alta per il double thresholding (default: 100).
-        
-    Returns:
-        edges (numpy.ndarray): Immagine dei bordi rilevati.
-    """
-    
-    # 1. Smoothing: ------------------/
+
+
+
+
+# 1. Smoothing: ------------------/
     # # Applica il filtro Gaussiano per rimuovere il rumore 
+def canny_smothing(img, smoothing_type=None,kernel=3,sigma=1.4):    
+    
     if smoothing_type == 'g':
         smoothed_img = cv2.GaussianBlur(img, (kernel,kernel), sigma)  # Kernel 5x5 con sigma=1.4
 
@@ -53,8 +43,14 @@ def canny_homemade(img, smoothing_type=None, kernel=3, sigma=1.4, \
     else:
         print ('Nessun filtro applicato')
         smoothed_img = img
-    
-    # 2. Finding Gradients ------------------/
+        
+    return smoothed_img
+
+
+
+
+# 2. Finding Gradients ------------------/
+def canny_finding_gradients(smoothed_img,ksize=3):
     # # cv2.CV_32F -> enorme ingrandimento di rappresentabilità per avere una precisione elevata nel calcolo delle derivate
     # # 1,0 -> derivata orizzontale 
     # # ksize -> dimensioni matrice
@@ -80,54 +76,54 @@ def canny_homemade(img, smoothing_type=None, kernel=3, sigma=1.4, \
     # Angolo
     theta = np.arctan2(grad_x, grad_y)
     angle = np.rad2deg(theta)
-    
 
-    # 3. Non-Maxima Suppression ------------------/
-    if do_maxima == True:
-        M, N = mag.shape
-        # matrice che fa da mappa
-        Non_max = np.zeros((M, N), dtype=np.uint8)
-
-        # si scorre su tutta l'immagine eccetto che sui bordi (per evitare di uscire)
-        for i in range(1, M - 1):
-            for j in range(1, N - 1):
-                # Identificazione angolo
-
-                # Horizontal 0
-                if (0 <= angle[i, j] < 22.5) or (157.5 <= angle[i, j] <= 180) or (-22.5 <= angle[i, j] < 0) or (-180 <= angle[i, j] < -157.5):
-                    b = mag[i, j + 1]
-                    c = mag[i, j - 1]
-                # Diagonal 45
-                elif (22.5 <= angle[i, j] < 67.5) or (-157.5 <= angle[i, j] < -112.5):
-                    b = mag[i + 1, j + 1]
-                    c = mag[i - 1, j - 1]
-                # Vertical 90
-                elif (67.5 <= angle[i, j] < 112.5) or (-112.5 <= angle[i, j] < -67.5):
-                    b = mag[i + 1, j]
-                    c = mag[i - 1, j]
-                # Diagonal 135
-                elif (112.5 <= angle[i, j] < 157.5) or (-67.5 <= angle[i, j] < -22.5):
-                    b = mag[i + 1, j - 1]
-                    c = mag[i - 1, j + 1]
-                
-                # Operazione effettiva
-                # Non-max Suppression
-                if (mag[i, j] >= b) and (mag[i, j] >= c):
-                    Non_max[i, j] = mag[i, j]
-                else:
-                    Non_max[i, j] = 0
-    else :
-        print('Non-Maxima saltata')
-        Non_max = mag
-
-    if closing != None:
-        matrix = np.ones((closing, closing), np.uint8)
-        Non_max = cv2.dilate(Non_max, matrix)
+    return mag, angle
 
 
-    
-    
-    # 4. Double Thresholding
+
+
+
+#3. Non-Maxima Suppression ------------------/
+def danny_non_maxima(mag, angle, maxima_dif=0):
+    M, N = mag.shape
+    # matrice che fa da mappa
+    Non_max = np.zeros((M, N), dtype=np.uint8)
+
+    # si scorre su tutta l'immagine eccetto che sui bordi (per evitare di uscire)
+    for i in range(1, M - 1):
+        for j in range(1, N - 1):
+            # Identificazione angolo
+
+            # Horizontal 0
+            if (0 <= angle[i, j] < 22.5) or (157.5 <= angle[i, j] <= 180) or (-22.5 <= angle[i, j] < 0) or (-180 <= angle[i, j] < -157.5):
+                b = mag[i, j + 1]
+                c = mag[i, j - 1]
+            # Diagonal 45
+            elif (22.5 <= angle[i, j] < 67.5) or (-157.5 <= angle[i, j] < -112.5):
+                b = mag[i + 1, j + 1]
+                c = mag[i - 1, j - 1]
+            # Vertical 90
+            elif (67.5 <= angle[i, j] < 112.5) or (-112.5 <= angle[i, j] < -67.5):
+                b = mag[i + 1, j]
+                c = mag[i - 1, j]
+            # Diagonal 135
+            elif (112.5 <= angle[i, j] < 157.5) or (-67.5 <= angle[i, j] < -22.5):
+                b = mag[i + 1, j - 1]
+                c = mag[i - 1, j + 1]
+            
+            # Operazione effettiva
+            # Non-max Suppression
+            if (mag[i, j] >= (b-maxima_dif)) and (mag[i, j] >= (c-maxima_dif)):
+                Non_max[i, j] = mag[i, j]
+            else:
+                Non_max[i, j] = 0
+    return Non_max
+
+
+
+
+#4. Double Thresholding ------------------/
+def canny_double_thesholding(Non_max,high_threshold=None,low_threshold_ratio=0.5):
     M, N = Non_max.shape
     double_thres = np.zeros((M, N), dtype=np.uint8) # matrice dove metteremo tutti i pixel divisi in gruppi
 
@@ -146,9 +142,13 @@ def canny_homemade(img, smoothing_type=None, kernel=3, sigma=1.4, \
     double_thres[zeros_i, zeros_j] = 0 # vengono impostati a nero
     double_thres[weak_i, weak_j] = 75 # vengono impostati a grigio
 
-    
-    
-    # 5. Edge Tracking by Hysteresis
+    return double_thres
+
+
+
+
+# 5. Edge Tracking by Hysteresis ------------------/
+def canny_edge_tracking(double_thres):
     M, N = double_thres.shape
     out = double_thres
 
@@ -161,9 +161,8 @@ def canny_homemade(img, smoothing_type=None, kernel=3, sigma=1.4, \
                     out[i, j] = 255 # se almeno uno è strong edges allora diventa anche lui strong edges
                 else:
                     out[i, j] = 0 # altrimenti viene eliminato
+    return out
 
-    
-    return out, double_thres, Non_max, mag, smoothed_img
 
 
 
@@ -173,6 +172,7 @@ def real_canny(img, high_threshold=150):
 
 
 
+# BOXING
 def boxing(original_img, canny_image):
     """
     Fa bounding box.

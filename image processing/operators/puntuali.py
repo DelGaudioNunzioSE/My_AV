@@ -39,7 +39,7 @@ def multiply_brightness(img, k):
 
 # 4. Operatore Lineare (addizione + moltiplicazione)
 def linear_operator(img, k, c):
-    result = img * k + c
+    result = img.astype(np.float32) * k + c # aumento rappresentabilità per evitare overflow
     return np.clip(result, 0, 255).astype(np.uint8)
 
 # 5. Clamping (riduzione del range)
@@ -95,7 +95,12 @@ def otsu_binarization(img):
     return result
 
 # 12. Adaptive Thresholding [fa diversi valori di soglia a seconda della zona dell'immagine]
-def adaptive_thresholding(img, block_size=11, C=2):
+def adaptive_thresholding(img, block_size=3, C=2):
+    '''
+    Arg
+        block_size: dimensioni blocco
+        C: Soglia=media dei valori dei pixel nel blocco−C
+    '''
     return cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, C)
 
 # 13. Linear Blending [mescola due immagini]
