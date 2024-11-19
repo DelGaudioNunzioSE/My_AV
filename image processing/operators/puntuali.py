@@ -7,46 +7,56 @@ import numpy as np
 import matplotlib.pyplot as plt # usata per mostrare grafici ed immagini
 
 
-# Carica l'immagine (convertita in scala di grigi)
-    # Lenna.png -> percorso dell'immagine
-        # cv2.IMREAD_COLOR -> immagine a colori
-        # cv2.IMREAD_GRAYSCALE -> immagine in scala di grigi
-def read_grayscale(name):
-    return cv2.imread(name, cv2.IMREAD_GRAYSCALE)
 
-# Funzione per mostrare le immagini in bianco e nero
-def show_image(title, img):
-        # cmap= gray rappresenta in scala di grigi
-    plt.imshow(img, cmap="gray")
-    plt.title(title)
-    plt.axis("off")
-    plt.show()
+# funzione di appoggio per overflow detection
+def _overflow_detection(result):
+    overflow_detected = np.isinf(result)
+    
+    # Stampa un messaggio se è stato rilevato un overflow
+    if np.any(overflow_detected):
+        print("Overflow oltre i limiti di float32 rilevato in alcuni pixel!")
+
+    return True
 
 
-
-
-# 1. Saturated Arithmetic
-def saturated_arithmetic(img, c):
-    # somma un valore c a ogni pixel sensa però andare oltre i valoti consentiti
-    result = np.clip(img + c, 0, 255)
-    # conversione del immagine in 8 bit (quindi con range da 0 - 255)
-    return result.astype(np.uint8)
-
-# 3. Moltiplicazione (uguale ma moltipilca)
-def multiply_brightness(img, k):
-    result = img * k
-    return np.clip(result, 0, 255).astype(np.uint8)
-
-# 4. Operatore Lineare (addizione + moltiplicazione)
-def linear_operator(img, k, c):
-    result = img.astype(np.float32) * k + c # aumento rappresentabilità per evitare overflow
-    return np.clip(result, 0, 255).astype(np.uint8)
 
 # 5. Clamping (riduzione del range)
 def clamping(img, a, b):
     # clippa i valori minori di 'a' ad un valore 'a' e quelli maggiori di 'b' al valore di 'b'
     result = np.clip(img, a, b)
     return result.astype(np.uint8)
+
+
+
+# 1. Saturated Arithmetic
+def saturated_arithmetic(img, c):
+    result = (img.astype(np.float32) + c, 0, 255)
+    _overflow_detection(result)
+
+    return clamping(img, 0, 255)
+
+
+
+# 3. Moltiplicazione (uguale ma moltipilca)
+def multiply_brightness(img, k):
+    result = img.astype(np.float32) * k
+    _overflow_detection(result)
+
+    return clamping(img, 0, 255)
+
+
+
+# 4. Operatore Lineare (addizione + moltiplicazione)
+def linear_operator(img, k, c):
+    result = img.astype(np.float32) * k + c # aumento rappresentabilità per evitare overflow
+    _overflow_detection(result)
+
+    return clamping(img, 0, 255)
+
+
+
+
+
 
 # 6. Inversione dei livelli di grigio
 def gray_level_inversion(img):

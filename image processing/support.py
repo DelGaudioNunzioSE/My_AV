@@ -35,6 +35,19 @@ def histo(image, title = 'histogram'):
     return histogram_img
 
 
+
+
+
+# Funzione per mostrare le immagini in bianco e nero
+def show_image(title, img):
+        # cmap= gray rappresenta in scala di grigi
+    plt.imshow(img, cmap="gray")
+    plt.title(title)
+    plt.axis("off")
+    plt.show()
+
+
+
 def show_images(titles, images, cols=2):
     """
     Mostra più immagini in una griglia.

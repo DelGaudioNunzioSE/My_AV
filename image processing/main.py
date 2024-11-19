@@ -88,7 +88,7 @@ if __name__ == "__main__":
         
         img_canny,img_dobule_thresholding, img_Non_maxima, img_gradients, img_smoothing,img_pre = \
         canny_homemade(img, smoothing_type='g',kernel=5,sigma=1.6,maxima_dif=0)
-        box=boxing(original_img,img_canny )
+        box=boxing(original_img, img_canny )
         show_images(['Origianl','Pre-process','Smoothing','gradients','NON-Maxima','dobule TresHolding','canny','box'],[img,img_pre,img_smoothing,img_gradients,img_Non_maxima,img_dobule_thresholding,img_canny,box], 3)
         
         # Real Canny

@@ -67,23 +67,3 @@ def closing(img, kernel_size=3):
     closed_img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
     return closed_img
 
-# Esempio di utilizzo
-if __name__ == "__main__":
-    # Carica un'immagine binaria (ad esempio, da un file)
-    img = cv2.imread('image.jpg', 0)  # 0 significa che carichiamo l'immagine in scala di grigi
-
-    # Esegui le operazioni morfologiche
-    dilated = dilatation(img)
-    eroded = erosion(img)
-    opened = opening(img)
-    closed = closing(img)
-
-    # Visualizza i risultati
-    cv2.imshow('Dilated', dilated)
-    cv2.imshow('Eroded', eroded)
-    cv2.imshow('Opened', opened)
-    cv2.imshow('Closed', closed)
-
-    # Attendi la pressione di un tasto per chiudere
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
