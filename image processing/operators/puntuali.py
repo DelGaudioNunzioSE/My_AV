@@ -32,23 +32,20 @@ def clamping(img, a, b):
 def linear_operator(img, k, c):
     result = img.astype(np.float32) * k + c # aumento rappresentabilità per evitare overflow
     _overflow_detection(result)
-
     return clamping(img, 0, 255)
 
 
 # 1. Saturated Arithmetic
 def saturated_arithmetic(img, c):
     result = linear_operator(img, 1, c)
-
-    return clamping(img, 0, 255)
+    return result
 
 
 
 # 3. Moltiplicazione (uguale ma moltipilca)
 def multiply_brightness(img, k):
     result = linear_operator(img, k, 0)
-
-    return clamping(img, 0, 255)
+    return result
 
 
 
