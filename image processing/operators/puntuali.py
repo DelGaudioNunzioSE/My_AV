@@ -28,10 +28,17 @@ def clamping(img, a, b):
 
 
 
+# 4. Operatore Lineare (addizione + moltiplicazione)
+def linear_operator(img, k, c):
+    result = img.astype(np.float32) * k + c # aumento rappresentabilità per evitare overflow
+    _overflow_detection(result)
+
+    return clamping(img, 0, 255)
+
+
 # 1. Saturated Arithmetic
 def saturated_arithmetic(img, c):
-    result = (img.astype(np.float32) + c, 0, 255)
-    _overflow_detection(result)
+    result = linear_operator(img, 1, c)
 
     return clamping(img, 0, 255)
 
@@ -39,17 +46,7 @@ def saturated_arithmetic(img, c):
 
 # 3. Moltiplicazione (uguale ma moltipilca)
 def multiply_brightness(img, k):
-    result = img.astype(np.float32) * k
-    _overflow_detection(result)
-
-    return clamping(img, 0, 255)
-
-
-
-# 4. Operatore Lineare (addizione + moltiplicazione)
-def linear_operator(img, k, c):
-    result = img.astype(np.float32) * k + c # aumento rappresentabilità per evitare overflow
-    _overflow_detection(result)
+    result = linear_operator(img, k, 0)
 
     return clamping(img, 0, 255)
 
